@@ -9,7 +9,7 @@
 Summary:	Rust's package manager and build tool
 Name:		cargo
 Version:	0.19.0
-Release:	0.1
+Release:	1
 License:	ASL 2.0 or MIT
 Group:		Development/Libraries
 Source0:	https://github.com/rust-lang/cargo/archive/%{cargo_version}/%{name}-%{cargo_version}.tar.gz
@@ -136,6 +136,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/cargo
 %{_mandir}/man1/cargo*.1*
 %{_sysconfdir}/bash_completion.d/cargo
-%{zsh_compdir}/_cargo
+#%{zsh_compdir}/_cargo
 %dir %{_datadir}/cargo
 %dir %{_datadir}/cargo/registry
