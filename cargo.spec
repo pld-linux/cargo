@@ -44,6 +44,7 @@ BuildRequires:	pkgconfig
 BuildRequires:	zlib-devel
 Requires:	rust
 ExclusiveArch:	%{x8664} %{ix86}
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define rust_triple %{_target_cpu}-unknown-linux-gnu
 
