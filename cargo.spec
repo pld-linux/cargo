@@ -1,17 +1,18 @@
 #
 # Conditional build:
-%bcond_with	bootstrap
+%bcond_with	bootstrap	# bootstrap using precompiled binaries
 %bcond_without	tests		# build without tests
 
-%define cargo_version %{version}
-%define cargo_bootstrap 0.18.0
+%define		cargo_version	%{version}
+%define		cargo_bootstrap	0.18.0
 
 Summary:	Rust's package manager and build tool
+Summary(pl.UTF-8):	Zarządca pakietów i narzędzie do budowania
 Name:		cargo
 Version:	0.19.0
 Release:	1
-License:	ASL 2.0 or MIT
-Group:		Development/Libraries
+License:	Apache v2.0 or MIT
+Group:		Development/Tools
 Source0:	https://github.com/rust-lang/cargo/archive/%{cargo_version}/%{name}-%{cargo_version}.tar.gz
 # Source0-md5:	e46e9f565df765b63f641c0d933297d7
 # submodule, bundled for local installation only, not distributed
@@ -46,7 +47,7 @@ Requires:	rust
 ExclusiveArch:	%{x8664} %{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define rust_triple %{_target_cpu}-unknown-linux-gnu
+%define		rust_triple	%{_target_cpu}-unknown-linux-gnu
 
 %if %{with bootstrap}
 %define		bootstrap_root	cargo-%{cargo_bootstrap}-%{rust_triple}
@@ -63,6 +64,36 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Cargo is a tool that allows Rust projects to declare their various
 dependencies and ensure that you'll always get a repeatable build.
 
+%description -l pl.UTF-8
+Cargo to narzędzie pozwalające projektom w języku Rust deklarować ich
+zależności i zapewniające powtarzalność procesu budowania.
+
+%package -n bash-completion-cargo
+Summary:	Bash completion for cargo command
+Summary(pl.UTF-8):	Bashowe dopełnianie parametrów polecenia cargo
+Group:		Applications/Shells
+Requires:	%{name} = %{version}-%{release}
+Requires:	bash-completion
+
+%description -n bash-completion-cargo
+Bash completion for cargo command.
+
+%description -n bash-completion-cargo -l pl.UTF-8
+Bashowe dopełnianie parametrów polecenia cargo.
+
+%package -n zsh-completion-cargo
+Summary:	Zsh completion for cargo command
+Summary(pl.UTF-8):	Dopełnianie parametrów polecenia cargo w powłoce Zsh
+Group:		Applications/Shells
+Requires:	%{name} = %{version}-%{release}
+Requires:	bash-completion
+
+%description -n zsh-completion-cargo
+Zsh completion for cargo command.
+
+%description -n zsh-completion-cargo -l pl.UTF-8
+Dopełnianie parametrów polecenia cargo w powłoce Zsh.
+
 %prep
 %setup -q -n %{name}-%{cargo_version} -a1 -a4
 %if %{with bootstrap}
@@ -77,11 +108,10 @@ test -f '%{local_cargo}'
 %patch0 -p1
 
 rmdir src/rust-installer
-mv rust-installer-%{rust_installer} src/rust-installer
+%{__mv} rust-installer-%{rust_installer} src/rust-installer
 
-# use our offline registry and custom rustc flags
+# use our offline registry
 export CARGO_HOME="`pwd`/.cargo"
-export RUSTFLAGS="%{rustflags}"
 
 mkdir -p "$CARGO_HOME"
 cat >.cargo/config <<EOF
@@ -94,16 +124,23 @@ directory = '$PWD/vendor'
 EOF
 
 %build
+# use our offline registry and custom rustc flags
+export CARGO_HOME="`pwd`/.cargo"
+export RUSTFLAGS="%{rustflags}"
+
 # convince libgit2-sys to use the distro libgit2
 export LIBGIT2_SYS_USE_PKG_CONFIG=1
 
 %configure \
-	--disable-option-checking \
-	--build=%{rust_triple} --host=%{rust_triple} --target=%{rust_triple} \
-	--rustc=%{_bindir}/rustc --rustdoc=%{_bindir}/rustdoc \
+	--build=%{rust_triple} \
+	--host=%{rust_triple} \
+	--target=%{rust_triple} \
 	--cargo=%{local_cargo} \
-	--release-channel=stable \
-	--disable-cross-tests
+	--rustc=%{_bindir}/rustc \
+	--rustdoc=%{_bindir}/rustdoc \
+	--disable-cross-tests \
+	--disable-option-checking \
+	--release-channel=stable
 
 %{__make}
 
@@ -116,13 +153,14 @@ export RUSTFLAGS="%{rustflags}"
 	DESTDIR=$RPM_BUILD_ROOT
 
 # Remove installer artifacts (manifests, uninstall scripts, etc.)
-rm -rv $RPM_BUILD_ROOT%{_prefix}/lib/
+%{__rm} -rv $RPM_BUILD_ROOT%{_prefix}/lib/
 
 # Fix the etc/ location
-mv -v $RPM_BUILD_ROOT%{_prefix}/%{_sysconfdir} $RPM_BUILD_ROOT%{_sysconfdir}
+# (ugh: prepare-image supports /etc outside /usr, but install doesn't!)
+%{__mv} -v $RPM_BUILD_ROOT%{_prefix}/%{_sysconfdir} $RPM_BUILD_ROOT%{_sysconfdir}
 
 # Remove unwanted documentation files (we already package them)
-rm -r $RPM_BUILD_ROOT%{_docdir}/%{name}/
+%{__rm} -r $RPM_BUILD_ROOT%{_docdir}/%{name}/
 
 # Create the path for crate-devel packages
 install -d $RPM_BUILD_ROOT%{_datadir}/cargo/registry
@@ -132,11 +170,16 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc LICENSE-APACHE LICENSE-MIT LICENSE-THIRD-PARTY
-%doc README.md
+%doc LICENSE-APACHE LICENSE-MIT LICENSE-THIRD-PARTY README.md
 %attr(755,root,root) %{_bindir}/cargo
 %{_mandir}/man1/cargo*.1*
-%{_sysconfdir}/bash_completion.d/cargo
-#%{zsh_compdir}/_cargo
 %dir %{_datadir}/cargo
 %dir %{_datadir}/cargo/registry
+
+%files -n bash-completion-cargo
+%defattr(644,root,root,755)
+%{_sysconfdir}/bash_completion.d/cargo
+
+%files -n zsh-completion-cargo
+%defattr(644,root,root,755)
+%{zsh_compdir}/_cargo
