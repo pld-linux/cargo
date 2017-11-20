@@ -20,7 +20,7 @@ Source2:	https://static.rust-lang.org/dist/%{name}-%{cargo_bootstrap}-x86_64-unk
 Source3:	https://static.rust-lang.org/dist/%{name}-%{cargo_bootstrap}-i686-unknown-linux-gnu.tar.gz
 # Source3-md5:	1ad24c241a2f5e3c4bf83855766fab35
 # Use vendored crate dependencies so we can build offline.
-# Created using https://github.com/alexcrichton/cargo-vendor/ 0.1.7
+# Created using https://github.com/alexcrichton/cargo-vendor/ 0.1.13
 # It's so big because some of the -sys crates include the C library source they
 # want to link to.  With our -devel buildreqs in place, they'll be used instead.
 # FIXME: These should all eventually be packaged on their own!
