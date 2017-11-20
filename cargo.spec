@@ -9,19 +9,15 @@
 Summary:	Rust's package manager and build tool
 Summary(pl.UTF-8):	Zarządca pakietów i narzędzie do budowania
 Name:		cargo
-Version:	0.19.0
+Version:	0.22.0
 Release:	1
 License:	Apache v2.0 or MIT
 Group:		Development/Tools
 Source0:	https://github.com/rust-lang/cargo/archive/%{cargo_version}/%{name}-%{cargo_version}.tar.gz
-# Source0-md5:	e46e9f565df765b63f641c0d933297d7
-# submodule, bundled for local installation only, not distributed
-%define rust_installer 4f994850808a572e2cc8d43f968893c8e942e9bf
-Source1:	https://github.com/rust-lang/rust-installer/archive/%{rust_installer}/rust-installer-%{rust_installer}.tar.gz
-# Source1-md5:	a222edd3ab08779f527aafe862207027
-Source2:	https://static.rust-lang.org/dist/cargo-%{cargo_bootstrap}-x86_64-unknown-linux-gnu.tar.gz
+# Source0-md5:	3a781687f7ac248d83efc4cfa642a260
+Source2:	https://static.rust-lang.org/dist/%{name}-%{cargo_bootstrap}-x86_64-unknown-linux-gnu.tar.gz
 # Source2-md5:	d2cbab6378c1f60b483efa0f076a8f81
-Source3:	https://static.rust-lang.org/dist/cargo-%{cargo_bootstrap}-i686-unknown-linux-gnu.tar.gz
+Source3:	https://static.rust-lang.org/dist/%{name}-%{cargo_bootstrap}-i686-unknown-linux-gnu.tar.gz
 # Source3-md5:	1ad24c241a2f5e3c4bf83855766fab35
 # Use vendored crate dependencies so we can build offline.
 # Created using https://github.com/alexcrichton/cargo-vendor/ 0.1.7
@@ -29,8 +25,7 @@ Source3:	https://static.rust-lang.org/dist/cargo-%{cargo_bootstrap}-i686-unknown
 # want to link to.  With our -devel buildreqs in place, they'll be used instead.
 # FIXME: These should all eventually be packaged on their own!
 Source4:	%{name}-%{version}-vendor.tar.xz
-# Source4-md5:	c8025d6ba2aa668c0bafc468ec354630
-Patch0:		use-system-libgit2.patch
+# Source4-md5:	0e0595ee6ced6164052633df6a8a9eab
 URL:		https://crates.io/
 %{!?with_bootstrap:BuildRequires:	%{name} >= 0.13.0}
 BuildRequires:	cmake
@@ -95,7 +90,7 @@ Zsh completion for cargo command.
 Dopełnianie parametrów polecenia cargo w powłoce Zsh.
 
 %prep
-%setup -q -n %{name}-%{cargo_version} -a1 -a4
+%setup -q -n %{name}-%{cargo_version} -a4
 %if %{with bootstrap}
 %ifarch %{x8664}
 tar xf %{SOURCE2}
@@ -105,10 +100,6 @@ tar xf %{SOURCE3}
 %endif
 test -f '%{local_cargo}'
 %endif
-%patch0 -p1
-
-rmdir src/rust-installer
-%{__mv} rust-installer-%{rust_installer} src/rust-installer
 
 # use our offline registry
 export CARGO_HOME="`pwd`/.cargo"
@@ -131,36 +122,24 @@ export RUSTFLAGS="%{rustflags}"
 # convince libgit2-sys to use the distro libgit2
 export LIBGIT2_SYS_USE_PKG_CONFIG=1
 
-%configure \
-	--build=%{rust_triple} \
-	--host=%{rust_triple} \
-	--target=%{rust_triple} \
-	--cargo=%{local_cargo} \
-	--rustc=%{_bindir}/rustc \
-	--rustdoc=%{_bindir}/rustdoc \
-	--disable-cross-tests \
-	--disable-option-checking \
-	--release-channel=stable
-
-%{__make}
+%{local_cargo} build --release
 
 %install
 rm -rf $RPM_BUILD_ROOT
 export CARGO_HOME="`pwd`/.cargo"
 export RUSTFLAGS="%{rustflags}"
 
-%{__make} install \
-	DESTDIR=$RPM_BUILD_ROOT
+%{local_cargo} install --root $RPM_BUILD_ROOT%{_prefix}
+rm $RPM_BUILD_ROOT%{_prefix}/.crates.toml
 
-# Remove installer artifacts (manifests, uninstall scripts, etc.)
-%{__rm} -rv $RPM_BUILD_ROOT%{_prefix}/lib/
+install -d $RPM_BUILD_ROOT%{_mandir}/man1
+install -p src%{_sysconfdir}/man/cargo*.1 $RPM_BUILD_ROOT%{_mandir}/man1
 
-# Fix the etc/ location
-# (ugh: prepare-image supports /etc outside /usr, but install doesn't!)
-%{__mv} -v $RPM_BUILD_ROOT%{_prefix}/%{_sysconfdir} $RPM_BUILD_ROOT%{_sysconfdir}
+install -p src%{_sysconfdir}/cargo.bashcomp.sh \
+  -D $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d/cargo
 
-# Remove unwanted documentation files (we already package them)
-%{__rm} -r $RPM_BUILD_ROOT%{_docdir}/%{name}/
+install -p src%{_sysconfdir}/_cargo \
+  -D $RPM_BUILD_ROOT%{zsh_compdir}/_cargo
 
 # Create the path for crate-devel packages
 install -d $RPM_BUILD_ROOT%{_datadir}/cargo/registry
