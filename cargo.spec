@@ -9,12 +9,12 @@
 Summary:	Rust's package manager and build tool
 Summary(pl.UTF-8):	Zarządca pakietów i narzędzie do budowania
 Name:		cargo
-Version:	0.22.0
-Release:	2
+Version:	0.23.0
+Release:	1
 License:	Apache v2.0 or MIT
 Group:		Development/Tools
 Source0:	https://github.com/rust-lang/cargo/archive/%{cargo_version}/%{name}-%{cargo_version}.tar.gz
-# Source0-md5:	3a781687f7ac248d83efc4cfa642a260
+# Source0-md5:	ebb47907d8eb451d2fa15fac9fbd88c3
 Source2:	https://static.rust-lang.org/dist/%{name}-%{cargo_bootstrap}-x86_64-unknown-linux-gnu.tar.gz
 # Source2-md5:	d2cbab6378c1f60b483efa0f076a8f81
 Source3:	https://static.rust-lang.org/dist/%{name}-%{cargo_bootstrap}-i686-unknown-linux-gnu.tar.gz
@@ -24,8 +24,9 @@ Source3:	https://static.rust-lang.org/dist/%{name}-%{cargo_bootstrap}-i686-unkno
 # It's so big because some of the -sys crates include the C library source they
 # want to link to.  With our -devel buildreqs in place, they'll be used instead.
 # FIXME: These should all eventually be packaged on their own!
-Source4:	%{name}-%{version}-vendor.tar.xz
-# Source4-md5:	0e0595ee6ced6164052633df6a8a9eab
+# PLD: using sources vendored by Fedora
+Source4:	https://src.fedoraproject.org/repo/pkgs/cargo/%{name}-%{version}-vendor.tar.xz/sha512/9060ec6e67b54f7fad7da8dd8450dd051d62b3f8ed4606196fc238a98beba1c3b43087c787f35d012d9b641c8572e70f50b95b0e01fdd75ed82932b6e6efbbf0/%{name}-%{version}-vendor.tar.xz
+# Source4-md5:	fb2f26742d3e20d8648962784df0b003
 URL:		https://crates.io/
 %{!?with_bootstrap:BuildRequires:	%{name} >= 0.13.0}
 BuildRequires:	cmake
