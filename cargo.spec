@@ -27,6 +27,7 @@ Source3:	https://static.rust-lang.org/dist/%{name}-%{cargo_bootstrap}-i686-unkno
 # PLD: using sources vendored by Fedora
 Source4:	https://src.fedoraproject.org/repo/pkgs/cargo/%{name}-%{version}-vendor.tar.xz/sha512/301fdf0ceea482120fbf4b5037bc2dfe18cd3c39f42eaca4464ed1f356093f0f9fb3dae48d1fd72b964fd5f4c6be21fa79e548d0480a1834afe55c2d4e50bac7/%{name}-%{version}-vendor.tar.xz
 # Source4-md5:	378dceb15dd78628d8664b7ca219f842
+Patch0:		x32.patch
 URL:		https://crates.io/
 %{!?with_bootstrap:BuildRequires:	%{name} >= 0.13.0}
 BuildRequires:	cmake
@@ -40,10 +41,14 @@ BuildRequires:	openssl-devel
 BuildRequires:	pkgconfig
 BuildRequires:	zlib-devel
 Requires:	rust
-ExclusiveArch:	%{x8664} %{ix86}
+ExclusiveArch:	%{x8664} %{ix86} x32
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
+%ifarch x32
+%define		rust_triple	x86_64-unknown-linux-gnux32
+%else
 %define		rust_triple	%{_target_cpu}-unknown-linux-gnu
+%endif
 
 %if %{with bootstrap}
 %define		bootstrap_root	cargo-%{cargo_bootstrap}-%{rust_triple}
@@ -92,6 +97,10 @@ Dopełnianie parametrów polecenia cargo w powłoce Zsh.
 
 %prep
 %setup -q -n %{name}-%{cargo_version} -a4
+%ifarch x32
+%patch0 -p1
+%endif
+
 %if %{with bootstrap}
 %ifarch %{x8664}
 tar xf %{SOURCE2}
