@@ -1,0 +1,54 @@
+diff -ur cargo-0.26.0.orig/src/cargo/core/features.rs cargo-0.26.0/src/cargo/core/features.rs
+--- cargo-0.26.0.orig/src/cargo/core/features.rs	2018-02-26 22:17:55.000000000 +0100
++++ cargo-0.26.0/src/cargo/core/features.rs	2019-09-21 22:39:56.881000000 +0200
+@@ -132,17 +132,17 @@
+     (unstable) => (Status::Unstable);
+ }
+ 
+-/// A listing of all features in Cargo
+-///
+-/// "look here"
+-///
+-/// This is the macro that lists all stable and unstable features in Cargo.
+-/// You'll want to add to this macro whenever you add a feature to Cargo, also
+-/// following the directions above.
+-///
+-/// Note that all feature names here are valid Rust identifiers, but the `_`
+-/// character is translated to `-` when specified in the `cargo-features`
+-/// manifest entry in `Cargo.toml`.
++// A listing of all features in Cargo
++//
++// "look here"
++//
++// This is the macro that lists all stable and unstable features in Cargo.
++// You'll want to add to this macro whenever you add a feature to Cargo, also
++// following the directions above.
++//
++// Note that all feature names here are valid Rust identifiers, but the `_`
++// character is translated to `-` when specified in the `cargo-features`
++// manifest entry in `Cargo.toml`.
+ features! {
+     pub struct Features {
+ 
+diff -ur cargo-0.26.0.orig/src/cargo/util/errors.rs cargo-0.26.0/src/cargo/util/errors.rs
+--- cargo-0.26.0.orig/src/cargo/util/errors.rs	2018-02-26 22:17:55.000000000 +0100
++++ cargo-0.26.0/src/cargo/util/errors.rs	2019-09-21 22:18:35.758000000 +0200
+@@ -199,7 +199,6 @@
+     #[cfg(unix)]
+     fn status_to_string(status: &ExitStatus) -> String {
+         use std::os::unix::process::*;
+-        use libc;
+ 
+         if let Some(signal) = status.signal() {
+             let name = match signal as libc::c_int {
+diff -ur cargo-0.26.0.orig/src/cargo/util/paths.rs cargo-0.26.0/src/cargo/util/paths.rs
+--- cargo-0.26.0.orig/src/cargo/util/paths.rs	2018-02-26 22:17:55.000000000 +0100
++++ cargo-0.26.0/src/cargo/util/paths.rs	2019-09-21 22:23:14.922000000 +0200
+@@ -138,7 +138,6 @@
+ #[cfg(unix)]
+ pub fn bytes2path(bytes: &[u8]) -> CargoResult<PathBuf> {
+     use std::os::unix::prelude::*;
+-    use std::ffi::OsStr;
+     Ok(PathBuf::from(OsStr::from_bytes(bytes)))
+ }
+ #[cfg(windows)]

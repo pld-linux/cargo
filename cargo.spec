@@ -10,7 +10,7 @@ Summary:	Rust's package manager and build tool
 Summary(pl.UTF-8):	Zarządca pakietów i narzędzie do budowania
 Name:		cargo
 Version:	0.26.0
-Release:	1
+Release:	2
 License:	Apache v2.0 or MIT
 Group:		Development/Tools
 Source0:	https://github.com/rust-lang/cargo/archive/%{cargo_version}/%{name}-%{cargo_version}.tar.gz
@@ -28,6 +28,7 @@ Source3:	https://static.rust-lang.org/dist/%{name}-%{cargo_bootstrap}-i686-unkno
 Source4:	https://src.fedoraproject.org/repo/pkgs/cargo/%{name}-%{version}-vendor.tar.xz/sha512/6ed2a1644c9b18fc24ddad5350d41b6c36cd5b62de4cf0b748a57b589f4f0ac12f91461989158d58d0892bf6fc2c1626cf574e7e2b9da4b0e35f72dfd88f9048/%{name}-%{version}-vendor.tar.xz
 # Source4-md5:	bf5dd065f46ece6a0d30dbd3216508a0
 Patch0:		x32.patch
+Patch1:		build_fix.patch
 URL:		https://crates.io/
 %{!?with_bootstrap:BuildRequires:	%{name} >= 0.13.0}
 BuildRequires:	cmake
@@ -100,6 +101,8 @@ Dopełnianie parametrów polecenia cargo w powłoce Zsh.
 %ifarch x32
 %patch0 -p1
 %endif
+
+%patch1 -p1
 
 %if %{with bootstrap}
 %ifarch %{x8664}
