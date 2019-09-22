@@ -1,3 +1,4 @@
+# NOTE: for versions >= 0.29 see rust.spec
 #
 # Conditional build:
 %bcond_with	bootstrap	# bootstrap using precompiled binaries
@@ -10,7 +11,7 @@ Summary:	Rust's package manager and build tool
 Summary(pl.UTF-8):	Zarządca pakietów i narzędzie do budowania
 Name:		cargo
 Version:	0.26.0
-Release:	2
+Release:	2.1
 License:	Apache v2.0 or MIT
 Group:		Development/Tools
 Source0:	https://github.com/rust-lang/cargo/archive/%{cargo_version}/%{name}-%{cargo_version}.tar.gz
