@@ -52,3 +52,54 @@ diff -ur cargo-0.26.0.orig/src/cargo/util/paths.rs cargo-0.26.0/src/cargo/util/p
      Ok(PathBuf::from(OsStr::from_bytes(bytes)))
  }
  #[cfg(windows)]
+--- cargo-0.26.0/src/cargo/core/workspace.rs~	2018-02-26 22:17:55.000000000 +0100
++++ cargo-0.26.0/src/cargo/core/workspace.rs	2021-09-04 09:03:27.740002413 +0200
+@@ -317,7 +317,7 @@
+                 .join("Cargo.toml");
+             debug!("find_root - pointer {}", path.display());
+             Ok(paths::normalize_path(&path))
+-        };
++        }
+ 
+         {
+             let current = self.packages.load(manifest_path)?;
+--- cargo-0.26.0/src/cargo/sources/git/utils.rs~	2018-02-26 22:17:55.000000000 +0100
++++ cargo-0.26.0/src/cargo/sources/git/utils.rs	2021-09-04 21:05:51.040004490 +0200
+@@ -1,7 +1,6 @@
+ use std::env;
+ use std::fmt;
+ use std::fs::{self, File};
+-use std::mem;
+ use std::path::{Path, PathBuf};
+ use std::process::Command;
+ 
+@@ -695,7 +695,7 @@
+                    String::from_utf8_lossy(&out.stderr));
+             if out.status.success() {
+                 let new = git2::Repository::open(repo.path())?;
+-                mem::replace(repo, new);
++                *repo = new;
+                 return Ok(())
+             }
+         }
+@@ -710,7 +710,7 @@
+     // the `tmp` folder we allocated.
+     let path = repo.path().to_path_buf();
+     let tmp = path.join("tmp");
+-    mem::replace(repo, git2::Repository::init(&tmp)?);
++    *repo = git2::Repository::init(&tmp)?;
+     for entry in path.read_dir()? {
+         let entry = entry?;
+         if entry.file_name().to_str() == Some("tmp") {
+@@ -720,9 +720,9 @@
+         drop(fs::remove_file(&path).or_else(|_| fs::remove_dir_all(&path)));
+     }
+     if repo.is_bare() {
+-        mem::replace(repo, git2::Repository::init_bare(path)?);
++        *repo = git2::Repository::init_bare(path)?;
+     } else {
+-        mem::replace(repo, git2::Repository::init(path)?);
++        *repo = git2::Repository::init(path)?;
+     }
+     fs::remove_dir_all(&tmp).chain_err(|| {
+         format!("failed to remove {:?}", tmp)
